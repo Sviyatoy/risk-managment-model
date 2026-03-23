@@ -1,5 +1,6 @@
 import dill
 import pandas as pd
+from typing import List
 from pydantic import BaseModel
 from fastapi import FastAPI
 
@@ -83,12 +84,12 @@ def status():
 def version():
     return model['metadata']
 
-@app.post('/predict', response_model=Prediction)
-def predict(form: Form):
-    df = pd.DataFrame.from_dict([form.dict()])
+@app.post('/predict', response_model=List[Prediction])
+def predict(forms: List[Form]):
+    df = pd.DataFrame([form.dict() for form in forms])
     y = model['model'].predict(df)
 
-    return {
-        'id':form.id,
-        'result': y[0]
-    }
+    results = []
+    for form, pred in zip(forms, y):
+        results.append({'id': form.id, 'result': pred})
+    return results
