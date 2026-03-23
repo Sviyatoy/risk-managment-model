@@ -89,6 +89,6 @@ def predict(form: Form):
     y = model['model'].predict(df)
 
     return {
-        'session_id':form.id,
+        'id':form.id,
         'result': y[0]
     }
